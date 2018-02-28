@@ -44,15 +44,6 @@ export default {
       }
     }
   },
-  data() {
-    return {
-      messages: [
-        "No wait...",
-        "Actually, you know what...",
-        "What I meant to say was..."
-      ]
-    };
-  },
   computed: {
     maxCount() {
       return Math.max(...this.buttons.map(d => d[".value"]));
@@ -67,17 +58,12 @@ export default {
     },
     total() {
       return this.bestButtons.reduce((acc, curr) => acc + curr.value, 0);
-    },
-    currentMessage() {
-      return this.messages[this.total % this.messages.length];
     }
   },
   methods: {
     addCount({ id, key }) {
       const value = +this.bestButtons[id].value + 1;
-      console.log(value);
       this.$firebaseRefs.buttons.child(key).set(value);
-      // this.$firebaseRefs.buttons.child(key);
     }
   }
 };
