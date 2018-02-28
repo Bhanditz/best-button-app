@@ -25,6 +25,7 @@
 
 <script>
 import "tailwindcss/dist/tailwind.css";
+import { db } from "../firebase";
 import HelloWorld from "./components/HelloWorld.vue";
 import Layout from "./components/Layout";
 import Settings from "./components/Settings";
@@ -34,6 +35,9 @@ export default {
   name: "app",
   components: {
     "buttons-holder": ButtonsHolder
+  },
+  firebase: {
+    firebuttons: db.ref("buttons")
   },
   data() {
     return {

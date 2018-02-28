@@ -8,8 +8,10 @@
   },
   "dependencies": {
     "express": "^4.16.2",
+    "firebase": "^4.10.1",
     "socket.io": "^2.0.4",
-    "vue": "^2.5.13"
+    "vue": "^2.5.13",
+    "vuefire": "^1.4.5"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.0.0-alpha.11",
