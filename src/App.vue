@@ -1,25 +1,36 @@
 <template>
   <div id="app" class="flex flex-col h-screen justify-between">
-    <header class="bg-green-dark text-white p-6">
-      <h2>Let the games begin...</h2>
+    <header class="bg-white text-dark text-2xl font-bold p-8 m-2 text-center">
+      May the best button win
     </header>
     <buttons-holder 
-      class="flex md:flex-row flex-col flex-1" 
+      class="flex justify-around md:flex-row flex-col flex-1" 
       :buttons="bestButtons">
       <li 
-        slot="im-the-best" slot-scope="{value, key, id, isBest}"
-        :class="`list-reset flex-1 p-3 md:p-6 bg-${key}-light flex flex-row md:flex-col justify-around items-center`">
-          <h3 :class="`text-white self-center ${isBest ? 'visible' : 'invisible'}`">This is the best button</h3>
+        slot="im-the-best" 
+        slot-scope="{value, key, id, isBest}"
+        :class="`list-reset bg-${key}-light flex-1 flex
+                flex-row justify-between items-center
+                md:flex-col md:p-3 md:justify-around`">
+          <h3 :class="`text-white text-left ${isBest ? 'visible' : 'invisible'} self-center
+                      p-1 w-1/3
+                      md:w-auto md:text-center`">
+            This is the best button
+          </h3>
           <button 
             :class="`bg-transparent hover:bg-white text-white font-semibold hover:text-${key}-dark py-2 px-4 border border-white hover:border-transparent rounded-full h-16 w-16 md:h-32 md:w-32 flex items-center justify-center`"
-            @click="addCount({id, key})">
+            @click="updateButtons({id, key})">
             {{value}}
           </button>
+          <div :class="`self-center
+                        w-1/3 p-1 
+                        md:w-auto md:p-2 `">
+            <div :class="`text-white text-right md:text-center ${key === old['.value'] ? 'visible' : 'invisible'}`">
+              <h4>This used to be the best button</h4>
+            </div>
+          </div>
       </li>
     </buttons-holder>
-    <footer class="bg-green-dark text-white p-6">
-      <h2>There are {{total}} votes</h2>
-      </footer>
   </div>
 </template>
 
@@ -42,7 +53,10 @@ export default {
       cancelCallback(err) {
         console.error(err);
       }
-    }
+    },
+    best: { source: db.ref("best"), asObject: true },
+    old: { source: db.ref("old"), asObject: true },
+    paused: { source: db.ref("paused"), asObject: true }
   },
   computed: {
     maxCount() {
@@ -52,7 +66,7 @@ export default {
       return this.buttons.map((b, i) => ({
         key: b[".key"],
         value: +b[".value"],
-        isBest: b[".value"] >= this.maxCount,
+        isBest: b[".key"] === this.best[".value"],
         id: i
       }));
     },
@@ -61,9 +75,12 @@ export default {
     }
   },
   methods: {
-    addCount({ id, key }) {
-      const value = +this.bestButtons[id].value + 1;
-      this.$firebaseRefs.buttons.child(key).set(value);
+    updateButtons({ id, key }) {
+      const newValue = this.bestButtons[id].value + 1;
+      // add +1 to the button
+      this.$firebaseRefs.buttons.child(key).set(newValue);
+      // change the best button
+      this.$firebaseRefs.best.set(key);
     }
   }
 };
