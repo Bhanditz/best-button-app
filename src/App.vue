@@ -1,7 +1,15 @@
 <template>
   <div id="app" class="flex flex-col h-screen justify-between">
-    <header class="bg-white text-dark text-2xl font-bold p-8 m-2 text-center">
+    <header class="bg-white text-dark text-2xl font-bold p-8 m-2 text-center flex flex-col">
       May the best button win
+      <countdown class="mt-2" 
+                  :time="time" 
+                  ref="countdown"
+                  @countdownend="selectTheWinner">
+        <div slot-scope="props">
+          {{ Math.floor(props.seconds) }}
+        </div>
+      </countdown>
     </header>
     <buttons-holder 
       class="flex justify-around md:flex-row flex-col flex-1" 
@@ -25,9 +33,9 @@
           <div :class="`self-center
                         w-1/3 p-1 
                         md:w-auto md:p-2 `">
-            <div :class="`text-white text-right md:text-center ${key === old['.value'] ? 'visible' : 'invisible'}`">
-              <h4>This used to be the best button</h4>
-            </div>
+            <h3 :class="`text-white text-right md:text-center ${key === old['.value'] ? 'visible' : 'invisible'}`">
+              This used to be the best button
+            </h3>
           </div>
       </li>
     </buttons-holder>
@@ -37,15 +45,19 @@
 <script>
 import "tailwindcss/dist/tailwind.css";
 import { db } from "../firebase";
-import HelloWorld from "./components/HelloWorld.vue";
-import Layout from "./components/Layout";
-import Settings from "./components/Settings";
+import VueCountdown from "@xkeshi/vue-countdown";
 import ButtonsHolder from "./components/ButtonsHolder";
 
 export default {
   name: "app",
   components: {
-    "buttons-holder": ButtonsHolder
+    "buttons-holder": ButtonsHolder,
+    countdown: VueCountdown
+  },
+  data() {
+    return {
+      time: 2000
+    };
   },
   firebase: {
     buttons: {
@@ -76,11 +88,29 @@ export default {
   },
   methods: {
     updateButtons({ id, key }) {
-      const newValue = this.bestButtons[id].value + 1;
-      // add +1 to the button
-      this.$firebaseRefs.buttons.child(key).set(newValue);
-      // change the best button
-      this.$firebaseRefs.best.set(key);
+      if (!this.paused[".value"]) {
+        const newValue = this.bestButtons[id].value + 1;
+        // add +1 to the button
+        this.$firebaseRefs.buttons.child(key).set(newValue);
+        // change the best button
+        this.$firebaseRefs.best.set(key);
+      }
+    },
+    selectTheWinner() {
+      this.$firebaseRefs.paused.set(true);
+
+      // find the winner
+      const mostVotes = Math.max(...this.bestButtons.map(d => d.value));
+      const winnerIndex = this.bestButtons.map(d => d.value).indexOf(mostVotes);
+      const winner = this.bestButtons[winnerIndex].key;
+
+      // set winner
+      this.$firebaseRefs.old.set(winner);
+
+      // TODO need to get countdown to work
+      setTimeout(() => {
+        this.$firebaseRefs.paused.set(false);
+      }, 4000);
     }
   }
 };

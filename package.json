@@ -7,8 +7,10 @@
     "build": "vue-cli-service build"
   },
   "dependencies": {
+    "@xkeshi/vue-countdown": "^0.5.0",
     "express": "^4.16.2",
     "firebase": "^4.10.1",
+    "npm": "^5.7.1",
     "socket.io": "^2.0.4",
     "vue": "^2.5.13",
     "vuefire": "^1.4.5"
